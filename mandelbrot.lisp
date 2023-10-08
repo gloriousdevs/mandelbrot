@@ -25,6 +25,7 @@ Para cada ponto c = (x, y) do gráfico:
 
 
 (declaim (inline iterations))
+(declaim (ftype (function ((complex single-float)) fixnum) iterations))
 
 (defun iterations (c)
   (labels ((iterate (n z)
@@ -72,13 +73,15 @@ Para cada ponto c = (x, y) do gráfico:
         (y-coords (coerce (loop for line from 0 below *height*
                                 collect (- *max-y* (* *y-step* line)))
                           '(vector single-float *))))
+    ;;(declare (type (vector single-float *) x-coords y-coords))
     (with-open-file (output "mandelbrot.ppm" :direction :output :if-exists :supersede)
       (format output "P3~%~a ~a~%255~%" *width* *height*) ;; header
       (loop for y across y-coords do
         (loop for x across x-coords do
           (let ((iters (iterations (complex x y))))
             (cond ((>= iters 42) (format output "0 0 0 "))
-                  (t             (format output "255 255 255 ")))))
+                  (t             (format output "255 255 255 ")
+                  ))))
         (terpri output)))
     (format t "Done!~%")))
 
